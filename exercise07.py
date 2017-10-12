@@ -38,20 +38,33 @@ for i in xrange(0, fasta_length, 1):
 seq_table
 
 #Plotting the first histogrm of sequence lengths
-ggplot(seq_table) + theme_classic() + xlab("sequence Length") + ylab("count") + geom_histogram(aes(x = "sequenceLength"))
+(ggplot(seq_table) + theme_classic() + xlab("sequence Length") + ylab("count") 
+    + geom_histogram(aes(x = "sequenceLength"))) #create histogram of sequence lengths
 
 #Plotting the first histogrm of sequence lengths
-ggplot(seq_table) + theme_classic() + xlab("GC content") + ylab("count") + geom_histogram(aes(x = "percentGC"))
+(ggplot(seq_table) + theme_classic() + xlab("GC content") + ylab("count") 
+    + geom_histogram(aes(x = "percentGC"))) #create histogram of percent GC
 
+#Begin challenge 2!
+#load csv of microbiome relative abundances
+microbiome = pandas.read_csv("microbiome.csv")
+#create scatterplot of Firmicutes vs Bacteroidetes with linear trendline
+(ggplot(microbiome, aes(x = "Firmicutes", y = "Bacteroidetes")) #here we set each bacterial genus as an axis
+    + geom_point() + stat_smooth(method="lm") #create scatter plot and linear trendline
+    + theme_classic() + xlab("Firmicutes abundance") + ylab("Bacteroidetes abundance"))
 
 #Begin challenge 3!
 
+#read in csv
 populations=pandas.read_csv("data.txt",sep=",",header=0)
+
+#set up separate lists for observations for each region
 westpop=[]
 eastpop=[]
 northpop=[]
 southpop=[]
 
+#Loop through populations dataframe and add observations to corresponding list
 for i in range(len(populations)):
     if populations.iloc[i,0] =="west":
         westpop.append(populations.iloc[i,1])
@@ -61,33 +74,40 @@ for i in range(len(populations)):
         northpop.append(populations.iloc[i,1])
     elif populations.iloc[i,0] =="south":
         southpop.append(populations.iloc[i,1])
-
+        
+#Create empty list to hold the average for populations
 Averageslist=[]
+#Create list for region labels
 Populationslist=['W','E','N','S']
 
+#Create separate dataframe for each region
 dfwest=pandas.DataFrame(list(zip(westpop)),columns=['Average'])
 dfeast=pandas.DataFrame(list(zip(eastpop)),columns=['Average'])
 dfnorth=pandas.DataFrame(list(zip(northpop)),columns=['Average'])
 dfsouth=pandas.DataFrame(list(zip(southpop)),columns=['Average'])
 
+#Create list of separate dataframes
 dataframes=[dfwest,dfeast,dfnorth,dfsouth]
 
+#Loop through lists of dataframes to add average obervations to averages list
 for i in dataframes:
     D=float(i.mean())
     Averageslist.append(D)
 
+#Finally make new dataframe of averages, appending region label list and average list
 meansdf=pandas.DataFrame(list(zip(Populationslist,Averageslist)),columns=['Population','Averages'])
 
+#plot these as bar graph in ggplot
 (ggplot(meansdf, aes(x='Population', y='Averages'))
- + geom_col()
- )
+    + geom_col())
 
 
-#You can use this one line of code for graphing the averages of all regions in a bar graph
-ggplot(populations) + geom_bar(aes(x='factor(region)', y='observations'), stat = "summary", fun_y = numpy.mean) + theme_classic() + xlab("region") + ylab("mean observations")
-
+#(Alternatively) You can use this one line of code for graphing the averages of all regions in a bar graph
+(ggplot(populations) + geom_bar(aes(x='factor(region)', y='observations'), stat = "summary", fun_y = numpy.mean) + theme_classic() 
+    + xlab("region") + ylab("mean observations"))
+    
 #Code for scatter plot with jitter and color
 ggplot(populations) + geom_point(aes(x="region", y="observations", color="factor(region)"), position = "jitter") + theme_classic() + xlab("region") + ylab("observations")
-
+#The scatter plot allows us to see the range of all data points while in the bar graph, the raw data is hidden from view and we don't see the variation
 
 
